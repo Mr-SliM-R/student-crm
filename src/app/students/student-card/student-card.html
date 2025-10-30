@@ -1,0 +1,12 @@
+<div class="card">
+  <div class="row1">
+    <h5 class="title">{{ student.name }}</h5>
+    <span class="badge" [class.on]="student.active" [class.off]="!student.active">
+      {{ student.active ? 'ACTIVE' : 'INACTIVE' }}
+    </span>
+  </div>
+  <p class="track">Track: <b>{{ student.track }}</b></p>
+  <div class="actions">
+    <button class="btn-outline" (click)="toggle.emit(student.id)">Toggle Active</button>
+  </div>
+</div>

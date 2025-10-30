@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Student CRM — Module 3 Coverage (Adding Interactivity)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --fg:#1f2937; --muted:#6b7280; --accent:#2563eb; --bg:#ffffff; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; padding:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif; color:var(--fg); background:var(--bg); }
+    .container { max-width: 920px; margin: 32px auto; padding: 0 20px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    h2 { font-size: 20px; margin: 28px 0 8px; }
+    h3 { font-size: 16px; margin: 18px 0 8px; }
+    p { line-height: 1.55; margin: 10px 0; }
+    ul { margin: 8px 0 8px 18px; }
+    li { margin: 4px 0; line-height: 1.45; }
+    code, .path { font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; font-size: 0.95em; }
+    .muted { color: var(--muted); }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#eef2ff; color:#3730a3; border:1px solid #c7d2fe; }
+    .card { border:1px solid #e5e7eb; border-radius:10px; padding:14px 16px; margin:14px 0; background:#fff; }
+    .section { margin-top: 24px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .small { font-size: 12px; }
+    @media print { .no-print { display:none; } a { color: black; text-decoration: none; } }
+    a { color: var(--accent); text-decoration: none; }
+  </style>
+  <meta name="description" content="Mapping of Student CRM app features to Module 3 (Adding Interactivity) topics." />
+</head>
+<body>
+  <div class="container">
+    <h1>Student CRM — Module 3 Coverage</h1>
+    <p class="muted">Topic: <span class="pill">Adding Interactivity to Your Applications</span></p>
+
+    <div class="section">
+      <h2>Overview</h2>
+      <p>
+        This document maps the Student CRM application’s code to common learning objectives for
+        “Module 3: Adding Interactivity to Your Applications.” Based on the repository code, the app
+        demonstrates core interactivity patterns: event handling, data binding, template‑driven forms,
+        component communication, routing, services/DI, and lifecycle hooks.
+      </p>
+      <p class="small muted">
+        Note: If your course PDF defines Module 3 differently, please share it (or confirm its location)
+        so we can align this mapping precisely to its sections and terminology.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>Typical Module 3 Topics</h2>
+      <ul>
+        <li>Event binding and handlers</li>
+        <li>Property, attribute, and class/style binding</li>
+        <li>Two‑way binding with <code>[(ngModel)]</code></li>
+        <li>Structural directives: <code>*ngIf</code>, <code>*ngFor</code></li>
+        <li>Template‑driven forms and basic validation</li>
+        <li>Component communication with <code>@Input()</code>/<code>@Output()</code></li>
+        <li>Services and dependency injection for stateful logic</li>
+        <li>Routing and navigation</li>
+        <li>Lifecycle hooks: <code>OnInit</code>, <code>OnDestroy</code></li>
+        <li>(Optional) Signals and hydration/event replay in modern Angular</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Where the App Covers These</h2>
+
+      <div class="card">
+        <h3>Routing and Navigation</h3>
+        <ul>
+          <li>
+            Navigation link and outlet: <span class="path">student-crm/src/app/app.html:5</span>,
+            <span class="path">student-crm/src/app/app.html:12</span>
+          </li>
+          <li>
+            Route configuration: <span class="path">student-crm/src/app/app-routing-module.ts:5</span>,
+            <span class="path">student-crm/src/app/app-routing-module.ts:11</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Template‑Driven Forms and Validation</h3>
+        <ul>
+          <li>
+            Form submit handler and two‑way binding:
+            <span class="path">student-crm/src/app/students/add-student/add-student.html:1</span>,
+            <span class="path">:2</span>, <span class="path">:3</span>, <span class="path">:10</span>,
+            <span class="path">:12</span>
+          </li>
+          <li>
+            Component logic and event emission:
+            <span class="path">student-crm/src/app/students/add-student/add-student.ts:11</span>,
+            <span class="path">:17</span>, <span class="path">:20</span>
+          </li>
+          <li>
+            Forms module import:
+            <span class="path">student-crm/src/app/students/students-module.ts:4</span>
+            (and included in <code>imports</code>)
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Two‑Way, Property, and Class Binding</h3>
+        <ul>
+          <li>
+            Two‑way binding and disabling submit until valid:
+            <span class="path">student-crm/src/app/students/add-student/add-student.html:2</span>,
+            <span class="path">:12</span>
+          </li>
+          <li>
+            Class binding that reflects state:
+            <span class="path">student-crm/src/app/students/student-card/student-card.html:4</span>
+          </li>
+          <li>
+            Property bindings to pass data:
+            <span class="path">student-crm/src/app/students/student-list/student-list.html:6</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Structural Directives</h3>
+        <ul>
+          <li>
+            Conditional and list rendering:
+            <span class="path">student-crm/src/app/students/student-list/student-list.html:1</span>,
+            <span class="path">:3</span>, <span class="path">:4</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Component Communication and Events</h3>
+        <ul>
+          <li>
+            Child emits toggle; parent handles:
+            <span class="path">student-crm/src/app/students/student-card/student-card.ts:12</span>,
+            <span class="path">student-crm/src/app/students/student-card/student-card.html:10</span>
+          </li>
+          <li>
+            Event bubbling via list:
+            <span class="path">student-crm/src/app/students/student-list/student-list.html:7</span>
+          </li>
+          <li>
+            Parent handlers wire up app behavior:
+            <span class="path">student-crm/src/app/home/home.html:6</span>,
+            <span class="path">student-crm/src/app/home/home.html:10</span>,
+            <span class="path">student-crm/src/app/home/home.ts:21</span>,
+            <span class="path">student-crm/src/app/home/home.ts:26</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Services, State, and DI</h3>
+        <ul>
+          <li>
+            Service with state and methods:
+            <span class="path">student-crm/src/app/core/student.ts:12</span> (service),
+            <span class="path">:18</span> (<code>list()</code>),
+            <span class="path">:20</span> (<code>add()</code>),
+            <span class="path">:27</span> (<code>toggleActive()</code>)
+          </li>
+          <li>
+            Injecting and using the service in a component:
+            <span class="path">student-crm/src/app/home/home.ts:14</span>,
+            <span class="path">:18</span>, <span class="path">:22</span>, <span class="path">:27</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Lifecycle Hooks</h3>
+        <ul>
+          <li>
+            Component initialization and teardown:
+            <span class="path">student-crm/src/app/students/student-card/student-card.ts:14</span>,
+            <span class="path">:18</span>
+          </li>
+          <li>
+            Parent component lifecycle:
+            <span class="path">student-crm/src/app/home/home.ts:11</span>,
+            <span class="path">:16</span>, <span class="path">:31</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Signals and Hydration (Modern Angular)</h3>
+        <ul>
+          <li>
+            Signal example (title): <span class="path">student-crm/src/app/app.ts:9</span>
+          </li>
+          <li>
+            Client hydration with event replay:
+            <span class="path">student-crm/src/app/app-module.ts:18</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>User Flow Walkthrough</h2>
+      <ol>
+        <li>Home loads and calls <code>ngOnInit()</code>, pulling students from the service and showing a count.</li>
+        <li>User fills the add‑student form and submits (<code>ngSubmit</code>), which emits a <code>create</code> event to the parent; the parent calls <code>add()</code> on the service, then re‑reads and displays the list.</li>
+        <li>User clicks “Toggle Active” on a card; the child emits an ID, the parent calls <code>toggleActive()</code> on the service; UI updates class bindings and labels accordingly.</li>
+      </ol>
+    </div>
+
+    <div class="section">
+      <h2>Gaps and Enhancement Ideas</h2>
+      <ul>
+        <li><b>Validation UX:</b> Add error messages and stricter validation on the form.</li>
+        <li><b>Async data flow:</b> If Module 3 covers HTTP/RxJS, adapt the service to use <code>HttpClient</code> and observables.</li>
+        <li><b>Signals in UI:</b> Bind the app title signal in the template to demonstrate reactive reads.</li>
+        <li><b>Routing depth:</b> Add routes for details/edit to cover route params and navigation extras.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>File Map (Quick Reference)</h2>
+      <ul>
+        <li><span class="path">student-crm/src/app/home/home.ts</span>, <span class="path">student-crm/src/app/home/home.html</span></li>
+        <li><span class="path">student-crm/src/app/students/add-student/add-student.ts</span>, <span class="path">…/add-student.html</span></li>
+        <li><span class="path">student-crm/src/app/students/student-list/student-list.ts</span>, <span class="path">…/student-list.html</span></li>
+        <li><span class="path">student-crm/src/app/students/student-card/student-card.ts</span>, <span class="path">…/student-card.html</span></li>
+        <li><span class="path">student-crm/src/app/core/student.ts</span>, <span class="path">student-crm/src/app/core/logger.ts</span></li>
+        <li><span class="path">student-crm/src/app/app.html</span>, <span class="path">student-crm/src/app/app-routing-module.ts</span>, <span class="path">student-crm/src/app/app-module.ts</span></li>
+      </ul>
+    </div>
+
+    <div class="section no-print">
+      <h2>Export to PDF</h2>
+      <p>
+        Easiest: Open this file in your browser and use “Print to PDF”. Path:
+        <span class="path">student-crm/docs/module-3-coverage.html</span>
+      </p>
+      <p>
+        Or I can attempt an automated export via Microsoft Edge (headless). If you approve, I’ll run a
+        command to produce <span class="path">student-crm/docs/module-3-coverage.pdf</span>.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

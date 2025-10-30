@@ -1,0 +1,11 @@
+<div class="header">
+  <h2 class="m-0">Students</h2>
+  <span class="badge">{{ students.length }}</span>
+</div>
+
+<app-add-student (create)="onCreate($event)"></app-add-student>
+
+<app-student-list
+  [students]="students"
+  (toggleActive)="onToggleActive($event)">
+</app-student-list>

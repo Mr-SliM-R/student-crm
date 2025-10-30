@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Student CRM – Module 4 Guide (Navigation & Data Transformation)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Beginner-friendly walkthrough for adding a navigation-driven analytics page to the Student CRM Angular project.">
+  <style>
+    :root {
+      --fg: #1f2937;
+      --muted: #6b7280;
+      --accent: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --border: #e5e7eb;
+      --surface: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: var(--surface);
+      color: var(--fg);
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 24px 64px;
+    }
+
+    h1 { margin: 0 0 12px; font-size: 2rem; }
+    h2 { margin: 32px 0 16px; font-size: 1.5rem; }
+    h3 { margin: 24px 0 12px; font-size: 1.1rem; }
+    p { line-height: 1.65; margin: 12px 0; }
+    ul, ol { margin: 12px 0 12px 24px; line-height: 1.6; }
+    li { margin: 6px 0; }
+
+    code {
+      font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.95rem;
+      background: #f3f4f6;
+      color: #111827;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #f5f5f7;
+      color: #111827;
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .muted { color: var(--muted); }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 16px 18px;
+      border-radius: 10px;
+      margin: 24px 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: var(--accent);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .step {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 18px 0;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .step h3 { margin-top: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+
+    .footer {
+      margin-top: 48px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .tip {
+      border-left: 4px solid #14b8a6;
+      background: #ecfeff;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .warning {
+      border-left: 4px solid #f97316;
+      background: #fff7ed;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    @media print {
+      .no-print { display: none; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Module 4 Teaching Guide<br><span class="badge">Navigation &amp; Data Transformation</span></h1>
+    <p class="muted">Student CRM Angular project — beginner-friendly walkthrough for adding a routed analytics page.</p>
+
+    <div class="callout">
+      <strong>Goal for learners:</strong> understand how to create a new routed page, read query parameters, and transform in-memory data into actionable summaries that the UI can display.
+    </div>
+
+    <h2>Before You Start</h2>
+    <ul>
+      <li>Open the workspace folder: <code>student-crm/</code>.</li>
+      <li>Install dependencies once with <code>npm install</code> (skip if already done).</li>
+      <li>Run <code>npm start</code> to launch the dev server when demonstrating live updates.</li>
+      <li>Review the Home page so learners see the starting point they are enhancing.</li>
+    </ul>
+
+    <h2>What We Will Build</h2>
+    <p>A new <strong>Student Insights</strong> page available at <code>/students/stats</code>. It will display:</p>
+    <ol>
+      <li>Total active and inactive students based on the in-memory service.</li>
+      <li>A per-track summary (Front-end, Back-end, Data, DevOps).</li>
+      <li>An optional track filter controlled by the query string (e.g., <code>?track=Data</code>).</li>
+      <li>A student list that reflects the current filter.</li>
+    </ol>
+
+    <h2>Step-by-Step Implementation</h2>
+
+    <div class="step">
+      <h3>Step 1 — Create the Feature Folder</h3>
+      <ol>
+        <li>Inside <span class="muted">src/app/students/</span>, add a folder named <code>student-stats</code>.</li>
+        <li>Create three files there:
+          <ul>
+            <li><code>student-stats.ts</code> — component logic.</li>
+            <li><code>student-stats.html</code> — template layout.</li>
+            <li><code>student-stats.css</code> — component styles.</li>
+          </ul>
+        </li>
+      </ol>
+      <p class="muted">Tip for beginners: in VS Code use “New Folder” followed by “New File” three times to avoid typos.</p>
+    </div>
+
+    <div class="step">
+      <h3>Step 2 — Build the Component Class</h3>
+      <p>Paste the following into <code>student-stats.ts</code> and walk through it slowly with the class.</p>
+<pre><code>import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Student, StudentService } from '../../core/student';
+
+@Component({
+  selector: 'app-student-stats',
+  standalone: false,
+  templateUrl: './student-stats.html',
+  styleUrls: ['./student-stats.css']
+})
+export class StudentStatsComponent implements OnInit, OnDestroy {
+  private readonly subs = new Subscription();
+  readonly tracks: Student['track'][] = ['Front-end', 'Back-end', 'Data', 'DevOps'];
+
+  students: Student[] = [];
+  summaries: Array<{ track: Student['track']; total: number; active: number; inactive: number; }> = [];
+  activeCount = 0;
+  inactiveCount = 0;
+  selectedTrack?: Student['track'];
+
+  constructor(
+    private readonly svc: StudentService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.students = this.svc.list();
+    this.recomputeStats();
+    this.subs.add(
+      this.route.queryParamMap.subscribe(params => this.applyTrackFilter(params))
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  get filteredStudents(): Student[] {
+    return this.selectedTrack
+      ? this.students.filter(s => s.track === this.selectedTrack)
+      : this.students;
+  }
+
+  selectTrack(track?: Student['track']): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: track ? { track } : { track: null },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  private applyTrackFilter(params: ParamMap): void {
+    const raw = params.get('track');
+    this.selectedTrack = this.tracks.includes(raw as Student['track']) ? raw as Student['track'] : undefined;
+  }
+
+  private recomputeStats(): void {
+    const byTrack = new Map(this.tracks.map(track => [track, { track, total: 0, active: 0, inactive: 0 }]));
+
+    for (const student of this.students) {
+      const summary = byTrack.get(student.track);
+      if (!summary) continue;
+      summary.total += 1;
+      summary.active += student.active ? 1 : 0;
+      summary.inactive += student.active ? 0 : 1;
+    }
+
+    const summaryValues = Array.from(byTrack.values());
+    this.summaries = summaryValues.filter(item => item.total > 0);
+
+    const totals = summaryValues.reduce((acc, item) => ({
+      total: acc.total + item.total,
+      active: acc.active + item.active,
+      inactive: acc.inactive + item.inactive
+    }), { total: 0, active: 0, inactive: 0 });
+
+    this.activeCount = totals.active;
+    this.inactiveCount = totals.inactive;
+  }
+}
+</code></pre>
+      <div class="tip">
+        Reinforce the concepts: lifecycle hooks for setup/cleanup, a reusable getter for filtered data, and a helper method that reduces raw data into summaries.
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Step 3 — Design the Template Layout</h3>
+      <p>Fill <code>student-stats.html</code> with the structure below. Point out the different kinds of binding.</p>
+<pre><code><section class="stats">
+  <header class="stats__header">
+    <div>
+      <h2 class="stats__title">Student Insights</h2>
+      <p class="stats__subtitle">Routed analytics page for Module 4.</p>
+    </div>
+    <button class="link" routerLink="/">Back to Home</button>
+  </header>
+
+  <section class="stats__overview">
+    <div class="card highlight">
+      <span class="label">Total Students</span>
+      <span class="value">{{ students.length }}</span>
+    </div>
+    <div class="card">
+      <span class="label">Active</span>
+      <span class="value">{{ activeCount }}</span>
+    </div>
+    <div class="card">
+      <span class="label">Inactive</span>
+      <span class="value">{{ inactiveCount }}</span>
+    </div>
+  </section>
+
+  <section class="stats__filters">
+    <span class="label">Filter by track:</span>
+    <button class="chip" [class.active]="!selectedTrack" type="button" (click)="selectTrack()">All</button>
+    <button *ngFor="let track of tracks"
+            class="chip"
+            [class.active]="selectedTrack === track"
+            type="button"
+            (click)="selectTrack(track)">
+      {{ track }}
+    </button>
+  </section>
+
+  <section class="stats__table">
+    <h3 class="table__title">Track Breakdown</h3>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Track</th>
+          <th scope="col">Students</th>
+          <th scope="col">Active</th>
+          <th scope="col">Inactive</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let summary of summaries">
+          <td>{{ summary.track }}</td>
+          <td>{{ summary.total }}</td>
+          <td>{{ summary.active }}</td>
+          <td>{{ summary.inactive }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="stats__list">
+    <header class="list__header">
+      <h3 class="table__title">Students {{ selectedTrack ? '(' + selectedTrack + ')' : '' }}</h3>
+      <span class="muted">URL filter: <code>?track={{ selectedTrack || 'all' }}</code></span>
+    </header>
+    <p *ngIf="!filteredStudents.length" class="muted">No students match this filter yet.</p>
+    <ul *ngIf="filteredStudents.length" class="student-list">
+      <li *ngFor="let student of filteredStudents" class="student-row">
+        <span class="student-name">{{ student.name }}</span>
+        <span class="badge" [class.on]="student.active" [class.off]="!student.active">
+          {{ student.active ? 'Active' : 'Inactive' }}
+        </span>
+        <span class="track">{{ student.track }}</span>
+      </li>
+    </ul>
+  </section>
+</section>
+</code></pre>
+    </div>
+
+    <div class="step">
+      <h3>Step 4 — Style the Page</h3>
+      <p>Copy these styles into <code>student-stats.css</code>. This keeps the look and feel consistent with the rest of the CRM.</p>
+<pre><code>.stats {
+  display: grid;
+  gap: 24px;
+}
+
+.stats__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.stats__title { margin: 0; font-size: 1.75rem; }
+.stats__subtitle { margin: 4px 0 0; color: #6b7280; }
+
+.link {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.stats__overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card.highlight {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #fff;
+  border: none;
+}
+
+.label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.value { font-size: 1.9rem; font-weight: 700; }
+
+.stats__filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.chip.active {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #fff;
+}
+
+.chip:hover { border-color: #2563eb; }
+
+.stats__table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stats__table th,
+.stats__table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.stats__table th {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+.table__title { margin: 0 0 10px; }
+
+.stats__list {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+.list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.student-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.student-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.student-name { font-weight: 600; }
+
+.badge {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge.on { background: #dcfce7; color: #15803d; }
+.badge.off { background: #fee2e2; color: #b91c1c; }
+
+@media (max-width: 640px) {
+  .student-row { grid-template-columns: 1fr; gap: 6px; }
+  .list__header { flex-direction: column; align-items: flex-start; gap: 4px; }
+}
+</code></pre>
+    </div>
+
+    <div class="step">
+      <h3>Step 5 — Register the Component and Route</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>What to Add</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/app/students/students-module.ts</code></td>
+            <td>Import <code>StudentStatsComponent</code> and <code>RouterModule</code>, then declare and export the component.</td>
+          </tr>
+          <tr>
+            <td><code>src/app/app-routing-module.ts</code></td>
+            <td>Append the route <code>{ path: 'students/stats', component: StudentStatsComponent }</code>.</td>
+          </tr>
+          <tr>
+            <td><code>src/app/app.html</code></td>
+            <td>Add the navigation link labeled “Insights” with <code>routerLink="/students/stats"</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warning">
+        Mention the common pitfall: if the component is not declared, Angular will throw “component is not part of any NgModule”. Always wire it up in the feature module.
+      </div>
+    </div>
+
+    <div class="step">
+      <h3>Step 6 — Verify Everything Works</h3>
+      <ol>
+        <li>Run <code>npm run build</code> or keep <code>ng serve</code> running to spot template errors instantly.</li>
+        <li>Open <code>http://localhost:4200</code> and click <strong>Insights</strong> in the header.</li>
+        <li>Toggle the track chips and highlight how the URL query string changes (e.g., <code>?track=DevOps</code>).</li>
+        <li>Return to Home, add a new student, then revisit Insights to prove the aggregates update automatically.</li>
+      </ol>
+      <div class="tip">
+        Encourage learners to watch the browser console; they will see the new component render without errors if everything is wired correctly.
+      </div>
+    </div>
+
+    <h2>Teaching Checklist</h2>
+    <ul>
+      <li>Differentiate between navigation state (route &amp; params) and shared application state (students in the service).</li>
+      <li>Show how to clean up subscriptions with <code>ngOnDestroy</code> to avoid memory leaks.</li>
+      <li>Explain the reducer pattern used in <code>recomputeStats</code> and why we avoid mutating the original service array.</li>
+      <li>Demonstrate <code>*ngFor</code> and <code>*ngIf</code> reacting to computed data.</li>
+      <li>Discuss fallbacks: if someone types an unsupported track in the URL, the filter resets to “All”.</li>
+    </ul>
+
+    <h2>Practice Ideas</h2>
+    <ol>
+      <li>Add a second query parameter (e.g., <code>?onlyActive=true</code>) and update the getter to honor both filters.</li>
+      <li>Move the aggregation logic into a dedicated method on <code>StudentService</code> or convert the service to return an Observable.</li>
+      <li>Create an extra card that displays the newest student using <code>Math.max</code> on IDs.</li>
+    </ol>
+
+    <h2>Appendix — Useful Commands</h2>
+<pre><code># Install dependencies (run once)
+npm install
+
+# Start the dev server
+npm start
+
+# Build production bundles
+npm run build
+</code></pre>
+
+    <p class="footer">Prepared for Module 4 of the Angular training series. Generated 2025-11-01.</p>
+  </div>
+</body>
+</html>

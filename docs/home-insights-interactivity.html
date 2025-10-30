@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Student CRM - Home &amp; Insights Interactivity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explains how the Home page and Insights page communicate in the Student CRM Angular project.">
+  <style>
+    :root {
+      --fg: #111827;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --border: #e5e7eb;
+      --surface: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: var(--surface);
+      color: var(--fg);
+    }
+    .container {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 24px 64px;
+    }
+    h1 { font-size: 2rem; margin: 0 0 12px; }
+    h2 { font-size: 1.45rem; margin: 32px 0 12px; }
+    h3 { font-size: 1.1rem; margin: 24px 0 10px; }
+    p { line-height: 1.65; margin: 12px 0; }
+    ul, ol { margin: 12px 0 12px 22px; line-height: 1.6; }
+    li { margin: 6px 0; }
+    code {
+      font-family: "Fira Code", "SFMono-Regular", Consolas, Menlo, monospace;
+      font-size: 0.94rem;
+      background: #f3f4f6;
+      color: #111827;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    pre {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+    .muted { color: var(--muted); }
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #eff6ff;
+      padding: 16px 18px;
+      border-radius: 10px;
+      margin: 24px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f9fafb;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Home &amp; Insights Interactivity Map<br><span class="pill">Student CRM Angular Project</span></h1>
+    <p class="muted">Generated 2025-11-01</p>
+
+    <div class="callout">
+      <strong>Goal.</strong> Show how actions on the Home page update the shared student data and how the Insights page responds through navigation, routing, and data transformations.
+    </div>
+
+    <h2>Key Building Blocks</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>File &amp; Responsibility</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Navigation Shell</td>
+          <td><code>src/app/app.html</code>: header links expose Home and Insights routes. Clicking Insights routes to <code>/students/stats</code> without reloading.</td>
+        </tr>
+        <tr>
+          <td>Home Page</td>
+          <td><code>src/app/home/home.ts</code> and <code>home.html</code>: load students via <code>StudentService</code>, render the add form and list, react to child events to mutate the store.</td>
+        </tr>
+        <tr>
+          <td>Insights Page</td>
+          <td><code>src/app/students/student-stats/student-stats.ts</code> and <code>student-stats.html</code>: read the service list, aggregate totals, respond to query parameters.</td>
+        </tr>
+        <tr>
+          <td>Shared State</td>
+          <td><code>src/app/core/student.ts</code>: <code>StudentService</code> exposes <code>list()</code>, <code>add()</code>, <code>toggleActive()</code>; both pages rely on the same instance (provided in root).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Interactivity Flow</h2>
+    <ol>
+      <li><strong>Navigation.</strong> The header link <code>&lt;a routerLink="/students/stats" routerLinkActive="active"&gt;</code> switches the router outlet from Home to Insights.</li>
+      <li><strong>Home actions.</strong>
+        <ul>
+          <li>Submitting the add form calls <code>AddStudentComponent.submit()</code>, which emits a <code>create</code> event containing the new student's fields.</li>
+          <li><code>HomeComponent.onCreate</code> receives the event, calls <code>StudentService.add()</code>, and replaces its <code>students</code> array with the returned list.</li>
+          <li>Clicking "Toggle Active" on a student card emits the student id to <code>HomeComponent.onToggleActive</code>, which calls <code>StudentService.toggleActive()</code> and refreshes the list.</li>
+        </ul>
+      </li>
+      <li><strong>Insights recompute.</strong>
+        <ul>
+          <li>When Insights loads, <code>StudentStatsComponent.ngOnInit()</code> calls <code>StudentService.list()</code> to get the current snapshot.</li>
+          <li>The component reduces the array into totals per track and overall active/inactive counts by running <code>recomputeStats()</code>.</li>
+          <li>A subscription to <code>route.queryParamMap</code> keeps <code>selectedTrack</code> in sync with the URL and filters <code>students</code> accordingly.</li>
+        </ul>
+      </li>
+      <li><strong>Feedback loop.</strong>
+        <ul>
+          <li>Service mutations triggered on Home are immediately reflected in subsequent <code>list()</code> calls.</li>
+          <li>Navigating between Home and Insights demonstrates the updated aggregates without additional plumbing.</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h2>Event &amp; Data Map</h2>
+    <pre><code>[AddStudentComponent] submit()
+  -> emits { name, track, active }
+[HomeComponent.onCreate]
+  -> StudentService.add(data)
+[StudentService]
+  -> updates store and returns fresh array
+[HomeComponent]
+  -> sets this.students = svc.list()
+[StudentStatsComponent]
+  -> on navigation, calls svc.list()
+  -> recomputeStats() builds track summaries
+</code></pre>
+
+    <h2>Query Parameter Interactivity</h2>
+    <p>Insights exposes filter chips that call <code>selectTrack(track)</code>, updating the router's query string while staying on the same component:</p>
+    <pre><code>this.router.navigate([], {
+  relativeTo: this.route,
+  queryParams: track ? { track } : { track: null },
+  queryParamsHandling: 'merge'
+});
+</code></pre>
+    <p>Because <code>StudentStatsComponent</code> subscribes to <code>queryParamMap</code>, the UI reacts instantly to URL state, demonstrating how navigation can drive data presentation without extra service calls.</p>
+
+    <h2>Teaching Takeaways</h2>
+    <ul>
+      <li>Both screens share a single source of truth through dependency injection; no manual syncing is needed.</li>
+      <li>Router navigation provides the context switch while preserving application state.</li>
+      <li>Query parameters act as a bookmarking mechanism for the Insights filter.</li>
+      <li>Outputs on Home (create/toggle events) are the triggers that keep analytics fresh.</li>
+    </ul>
+
+    <p class="muted">Use the file references above when guiding students through the live code.</p>
+  </div>
+</body>
+</html>

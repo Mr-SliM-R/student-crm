@@ -1,0 +1,2 @@
+.header { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.badge { background: #eee; padding: 2px 8px; border-radius: 999px; }

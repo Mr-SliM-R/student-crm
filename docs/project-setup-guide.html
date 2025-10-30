@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student CRM Project Setup Steps</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    body {
+      margin: 40px;
+      color: #222;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-size: 20px;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    pre {
+      background: #f7f7f7;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 13px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+    }
+    .note {
+      padding: 12px 16px;
+      border-left: 4px solid #0078d4;
+      background: #eef6fd;
+      margin: 20px 0;
+    }
+    ol {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Student CRM &mdash; Classroom Build Guide</h1>
+  <p>
+    Use this handout to lead a live build of the Student CRM application with your students.
+    Every step works with Angular CLI 20 in non-standalone mode and results in the exact project now running locally.
+  </p>
+
+  <div class="note">
+    <strong>Prerequisites:</strong> Node 18+, Angular CLI 20+, and PowerShell (Windows). Run all shell commands from a terminal unless noted otherwise.
+  </div>
+
+  <h2>1. Create the Angular workspace</h2>
+  <pre><code>ng new student-crm --standalone=false --routing --style=css
+cd student-crm</code></pre>
+
+  <h2>2. Wire the bootstrap file</h2>
+  <p>Edit <code>src/main.ts</code> so Angular bootstraps <code>AppModule</code>.</p>
+  <pre><code>import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppModule } from './app/app.module';
+
+platformBrowserDynamic()
+  .bootstrapModule(AppModule)
+  .catch(err =&gt; console.error(err));</code></pre>
+
+  <h2>3. Generate the Home component</h2>
+  <pre><code>ng g component home --standalone=false</code></pre>
+
+  <h2>4. Create core services</h2>
+  <p>Generate services and replace their contents with the following code.</p>
+  <pre><code>ng g service core/student
+ng g service core/logger</code></pre>
+  <pre><code>// src/app/core/student.service.ts
+import { Injectable } from '@angular/core';
+
+export interface Student {
+  id: number;
+  name: string;
+  track: 'Front-end' | 'Back-end' | 'Data' | 'DevOps';
+  active: boolean;
+}
+
+@Injectable({ providedIn: 'root' })
+export class StudentService {
+  private store: Student[] = [
+    { id: 1, name: 'Alice', track: 'Front-end', active: true },
+    { id: 2, name: 'Bob', track: 'Data', active: false }
+  ];
+
+  list(): Student[] { return [...this.store]; }
+
+  add(s: Omit&lt;Student, 'id'&gt;): Student[] {
+    const id = Math.max(0, ...this.store.map(x =&gt; x.id)) + 1;
+    this.store = [...this.store, { id, ...s }];
+    return this.list();
+  }
+
+  toggleActive(id: number): Student[] {
+    this.store = this.store.map(s =&gt;
+      s.id === id ? { ...s, active: !s.active } : s
+    );
+    return this.list();
+  }
+}</code></pre>
+  <pre><code>// src/app/core/logger.service.ts
+import { Injectable } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class LoggerService {
+  log(message: string) {
+    console.log(`[LOG] ${message}`);
+  }
+}</code></pre>
+
+  <h2>5. Generate the Students feature module and components</h2>
+  <pre><code>ng g module students
+ng g component students/add-student --standalone=false
+ng g component students/student-card --standalone=false
+ng g component students/student-list --standalone=false</code></pre>
+
+  <h2>6. Wire the Students module</h2>
+  <p>Replace <code>src/app/students/students.module.ts</code> with:</p>
+<pre><code>// src/app/students/students-module.ts
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+import { AddStudentComponent } from './add-student/add-student';
+import { StudentCardComponent } from './student-card/student-card';
+import { StudentListComponent } from './student-list/student-list';
+
+@NgModule({
+  declarations: [
+    AddStudentComponent,
+    StudentCardComponent,
+    StudentListComponent
+  ],
+  imports: [CommonModule, FormsModule],
+  exports: [AddStudentComponent, StudentListComponent]
+})
+export class StudentsModule {}</code></pre>
+
+  <h2>7. Implement the Students components</h2>
+  <pre><code>// src/app/students/add-student/add-student.ts
+import { Component, EventEmitter, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-add-student',
+  templateUrl: './add-student.html',
+  styleUrls: ['./add-student.css']
+})
+export class AddStudentComponent {
+  @Output() create = new EventEmitter&lt;{ name: string; track: string; active: boolean }&gt;();
+
+  name = '';
+  track: 'Front-end' | 'Back-end' | 'Data' | 'DevOps' = 'Front-end';
+  active = true;
+
+  submit() {
+    if (!this.name.trim()) return;
+    this.create.emit({ name: this.name, track: this.track, active: this.active });
+    this.name = '';
+    this.active = true;
+  }
+}</code></pre>
+  <pre><code>&lt;!-- src/app/students/add-student/add-student.html --&gt;
+&lt;form class="add-form" (ngSubmit)="submit()"&gt;
+  &lt;input class="txt" name="name" [(ngModel)]="name" placeholder="Student name" required&gt;
+  &lt;select class="sel" name="track" [(ngModel)]="track"&gt;
+    &lt;option&gt;Front-end&lt;/option&gt;
+    &lt;option&gt;Back-end&lt;/option&gt;
+    &lt;option&gt;Data&lt;/option&gt;
+    &lt;option&gt;DevOps&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;label class="chk"&gt;
+    &lt;input type="checkbox" name="active" [(ngModel)]="active"&gt; Active
+  &lt;/label&gt;
+  &lt;button class="btn" type="submit" [disabled]="!name"&gt;Add&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+  <pre><code>/* src/app/students/add-student/add-student.css */
+.add-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.txt, .sel { padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+.chk { display: flex; align-items: center; gap: 4px; }
+.btn { padding: 8px 12px; border-radius: 6px; background: #18243d; color: #fff; border: none; cursor: pointer; }</code></pre>
+  <pre><code>// src/app/students/student-card/student-card.ts
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Student } from '../../core/student.service';
+
+@Component({
+  selector: 'app-student-card',
+  templateUrl: './student-card.html',
+  styleUrls: ['./student-card.css']
+})
+export class StudentCardComponent implements OnInit, OnDestroy {
+  @Input({ required: true }) student!: Student;
+  @Output() toggle = new EventEmitter&lt;number&gt;();
+
+  ngOnInit() { console.log(`Card init: ${this.student?.name}`); }
+  ngOnDestroy() { console.log(`Card destroy: ${this.student?.name}`); }
+}</code></pre>
+  <pre><code>&lt;!-- src/app/students/student-card/student-card.html --&gt;
+&lt;div class="card"&gt;
+  &lt;div class="row1"&gt;
+    &lt;h5 class="title"&gt;{{ student.name }}&lt;/h5&gt;
+    &lt;span class="badge" [class.on]="student.active" [class.off]="!student.active"&gt;
+      {{ student.active ? 'ACTIVE' : 'INACTIVE' }}
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="track"&gt;Track: &lt;b&gt;{{ student.track }}&lt;/b&gt;&lt;/p&gt;
+  &lt;div class="actions"&gt;
+    &lt;button class="btn-outline" (click)="toggle.emit(student.id)"&gt;Toggle Active&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  <pre><code>/* src/app/students/student-card/student-card.css */
+.card { border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.row1 { display: flex; justify-content: space-between; align-items: center; }
+.title { margin: 0; }
+.badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+.badge.on { background: #e7f7ee; color: #0b6b3a; }
+.badge.off { background: #f1f1f1; color: #666; }
+.track { margin: 6px 0 0; }
+.actions { margin-top: 8px; }
+.btn-outline { padding: 6px 10px; border: 1px solid #ccc; border-radius: 6px; background: #fff; cursor: pointer; }</code></pre>
+  <pre><code>// src/app/students/student-list/student-list.ts
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Student } from '../../core/student.service';
+
+@Component({
+  selector: 'app-student-list',
+  templateUrl: './student-list.html',
+  styleUrls: ['./student-list.css']
+})
+export class StudentListComponent {
+  @Input() students: Student[] = [];
+  @Output() toggleActive = new EventEmitter&lt;number&gt;();
+}</code></pre>
+  <pre><code>&lt;!-- src/app/students/student-list/student-list.html --&gt;
+&lt;p *ngIf="!students.length" class="muted"&gt;No students yet.&lt;/p&gt;
+&lt;div class="grid" *ngIf="students.length"&gt;
+  &lt;div class="col" *ngFor="let s of students"&gt;
+    &lt;app-student-card
+      [student]="s"
+      (toggle)="toggleActive.emit($event)"&gt;
+    &lt;/app-student-card&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  <pre><code>/* src/app/students/student-list/student-list.css */
+.muted { color: #666; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.col { display: block; }</code></pre>
+
+  <h2>8. Finish the Home feature</h2>
+  <pre><code>// src/app/home/home.ts
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Student, StudentService } from '../core/student.service';
+import { LoggerService } from '../core/logger.service';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.html',
+  styleUrls: ['./home.css']
+})
+export class HomeComponent implements OnInit, OnDestroy {
+  students: Student[] = [];
+
+  constructor(private svc: StudentService, private log: LoggerService) {}
+
+  ngOnInit(): void {
+    this.students = this.svc.list();
+    this.log.log('Home initialized');
+  }
+
+  addStudent(data: Omit&lt;Student, 'id'&gt;) {
+    this.students = this.svc.add(data);
+  }
+
+  toggleStatus(id: number) {
+    this.students = this.svc.toggleActive(id);
+  }
+
+  ngOnDestroy(): void {
+    this.log.log('Home destroyed');
+  }
+}</code></pre>
+  <pre><code>&lt;!-- src/app/home/home.html --&gt;
+&lt;div class="header"&gt;
+  &lt;h2 class="m-0"&gt;Students&lt;/h2&gt;
+  &lt;span class="badge"&gt;{{ students.length }}&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;app-add-student (create)="addStudent($event)"&gt;&lt;/app-add-student&gt;
+
+&lt;app-student-list
+  [students]="students"
+  (toggleActive)="toggleStatus($event)"&gt;
+&lt;/app-student-list&gt;</code></pre>
+  <pre><code>/* src/app/home/home.css */
+.header { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.badge { background: #eee; padding: 2px 8px; border-radius: 999px; }</code></pre>
+
+  <h2>9. Configure routing</h2>
+  <p>Update <code>src/app/app-routing.module.ts</code> so the home page renders by default.</p>
+  <pre><code>// src/app/app-routing-module.ts
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { HomeComponent } from './home/home';
+
+const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: '**', redirectTo: '' }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule {}</code></pre>
+
+  <h2>10. Replace the CLI shell</h2>
+  <p>
+    Swap out the Angular CLI placeholder with the layout used in the finished app.
+    Update both template and styles.
+  </p>
+  <pre><code>// src/app/app.html
+&lt;main class="app"&gt;
+  &lt;header class="app__header"&gt;
+    &lt;h1 class="app__title"&gt;Student CRM&lt;/h1&gt;
+    &lt;nav class="app__nav"&gt;
+      &lt;a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"&gt;
+        Home
+      &lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+  &lt;section class="app__content container"&gt;
+    &lt;router-outlet&gt;&lt;/router-outlet&gt;
+  &lt;/section&gt;
+&lt;/main&gt;</code></pre>
+  <pre><code>// src/app/app.css
+.app {
+  min-height: 100vh;
+  background: #f5f6f8;
+  display: flex;
+  flex-direction: column;
+}
+
+.app__header {
+  background: #18243d;
+  color: #fff;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+
+.app__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.app__nav a {
+  color: #b8c1d1;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.app__nav a.active,
+.app__nav a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.app__content {
+  flex: 1;
+  padding: 32px 24px;
+}</code></pre>
+
+  <h2>11. Finalize AppComponent logic</h2>
+  <p>Edit <code>src/app/app.ts</code> to hold the app title.</p>
+  <pre><code>// src/app/app.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.html',
+  styleUrls: ['./app.css']
+})
+export class App {
+  title = 'Student CRM';
+}</code></pre>
+  <pre><code>// src/app/app-module.ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppRoutingModule } from './app-routing-module';
+import { App } from './app';
+import { HomeComponent } from './home/home';
+import { StudentsModule } from './students/students-module';
+
+@NgModule({
+  declarations: [App, HomeComponent],
+  imports: [BrowserModule, AppRoutingModule, StudentsModule],
+  providers: [],
+  bootstrap: [App]
+})
+export class AppModule {}</code></pre>
+
+  <h2>12. Run the application</h2>
+  <pre><code>npm install
+ng serve -o</code></pre>
+
+  <h2>13. Demo talking points</h2>
+  <ul>
+    <li>Fresh page load shows two seeded students, proving the service wiring.</li>
+    <li>The badge count reacts to adds and toggles thanks to immutable updates.</li>
+    <li><code>LoggerService</code> messages appear in the console, illustrating cross-cutting services.</li>
+    <li>Each card logs lifecycle hooks (<code>ngOnInit</code>/<code>ngOnDestroy</code>) when the list changes.</li>
+  </ul>
+
+  <p>
+    With these files in place the build passes (<code>npm run build</code>) and the UI matches the finished Student CRM dashboard.
+  </p>
+</body>
+</html>

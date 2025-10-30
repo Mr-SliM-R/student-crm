@@ -1,0 +1,10 @@
+<p *ngIf="!students?.length" class="muted">No students yet.</p>
+
+<div class="grid" *ngIf="students?.length">
+  <div class="col" *ngFor="let s of students">
+    <app-student-card
+      [student]="s"
+      (toggle)="toggleActive.emit($event)">
+    </app-student-card>
+  </div>
+</div>

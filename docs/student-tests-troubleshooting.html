@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Student CRM Test Failures – Troubleshooting Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --fg:#1f2937;
+      --muted:#6b7280;
+      --accent:#1d4ed8;
+      --bg:#ffffff;
+      --border:#e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px 56px;
+    }
+    h1 { font-size: 1.9rem; margin: 0 0 12px; }
+    h2 { font-size: 1.35rem; margin: 32px 0 12px; }
+    h3 { font-size: 1.1rem; margin: 24px 0 10px; }
+    p { margin: 12px 0; }
+    ul { margin: 10px 0 10px 22px; }
+    li { margin: 6px 0; }
+    code {
+      font-family: "Fira Code", "SFMono-Regular", Consolas, Menlo, monospace;
+      font-size: 0.95rem;
+      background: #f3f4f6;
+      color: #111827;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    pre {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+      font-size: 0.92rem;
+    }
+    .callout {
+      border-left: 4px solid var(--accent);
+      background: #eff6ff;
+      padding: 16px 18px;
+      border-radius: 10px;
+      margin: 24px 0;
+    }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f9fafb;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student CRM Test Failures – Troubleshooting Notes</h1>
+    <p class="muted">Generated 2025-11-01</p>
+
+    <div class="callout">
+      <strong>Summary.</strong> Three Jasmine/Karma unit tests fail because the specs still assume certain components are standalone while the application now declares them in an NgModule. Adjust the TestBed setup (or revert the components back to standalone) to resolve the errors.
+    </div>
+
+    <h2>The Failing Specs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Spec File</th>
+          <th>Error Message</th>
+          <th>Root Cause</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/students/student-list/student-list.spec.ts</code></td>
+          <td>“Unexpected <code>HostComponent</code> found in the <code>declarations</code> array … the component is marked as standalone and can't be declared in any NgModule.”</td>
+          <td>The spec registers <code>StudentListComponent</code> and <code>StudentCardComponent</code> in the <code>imports</code> array, assuming they are standalone. In the project they are declared inside <code>StudentsModule</code>, so TestBed expects them in <code>declarations</code> (or the module should be imported wholesale).</td>
+        </tr>
+        <tr>
+          <td><code>src/app/students/student-card/student-card.spec.ts</code></td>
+          <td>“Unexpected directive <code>StudentCardComponent2</code> imported by the module <code>DynamicTestModule</code>. Please add an <code>@NgModule</code> annotation.”</td>
+          <td>Same mismatch: the spec imports the component as if it were standalone, but the app declares it in an NgModule. Karma interprets the class as a directive without module metadata and throws.</td>
+        </tr>
+        <tr>
+          <td><code>student-list.spec.ts</code> (secondary issue)</td>
+          <td>Missing closing <code>});</code> for the first <code>it</code> block.</td>
+          <td>Not the current failure, but the suite will break once the module issue is fixed, so add the closing brace.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Why It Happened</h2>
+    <p>
+      The application moved its student components into <code>StudentsModule</code> (<code>src/app/students/students-module.ts</code>) with <code>standalone: false</code>. Unit tests, however, were written back when these components were standalone. In Angular 15+, standalone components go into the <code>imports</code> array; NgModule-declared components belong in <code>declarations</code>. Mixing the two signals yields the runtime errors you observed.
+    </p>
+
+    <h2>How to Fix It</h2>
+    <ol>
+      <li>
+        <strong>Update the TestBed setup to match module usage.</strong>
+        <ul>
+          <li>Option A: move the components from <code>imports</code> to <code>declarations</code> and add <code>CommonModule</code>/<code>FormsModule</code> as needed.</li>
+          <li>Option B: import <code>StudentsModule</code> directly so TestBed reuses the production declarations.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Or revert the components to standalone.</strong> If you set <code>standalone: true</code> again and adjust the app module accordingly, the existing tests will work without changes. (This trades classroom goals for compatibility.)
+      </li>
+      <li>
+        <strong>Close the open test block.</strong> Add the missing <code>});</code> after the first <code>it</code> in <code>student-list.spec.ts</code> so the second test executes.
+      </li>
+    </ol>
+
+    <h2>Suggested Classroom Talking Points</h2>
+    <ul>
+      <li>Contrast TestBed configuration for standalone components vs. NgModule-declared ones.</li>
+      <li>Show how shared modules (like <code>StudentsModule</code>) can simplify test setup.</li>
+      <li>Discuss keeping specs in sync with refactors to avoid brittle tests.</li>
+    </ul>
+
+    <p class="muted">Once you align the test configuration with the module structure, rerun <code>ng test</code> to confirm all specs pass.</p>
+  </div>
+</body>
+</html>

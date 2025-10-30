@@ -1,0 +1,13 @@
+<form class="add-form" (ngSubmit)="submit()">
+  <input class="txt" name="name" [(ngModel)]="name" placeholder="Student name" required>
+  <select class="sel" name="track" [(ngModel)]="track">
+    <option>Front-end</option>
+    <option>Back-end</option>
+    <option>Data</option>
+    <option>DevOps</option>
+  </select>
+  <label class="chk">
+    <input type="checkbox" name="active" [(ngModel)]="active"> Active
+  </label>
+  <button class="btn" type="submit" [disabled]="!name">Add</button>
+</form>

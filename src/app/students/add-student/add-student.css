@@ -1,0 +1,4 @@
+.add-form { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.txt, .sel { padding: 6px 8px; }
+.chk { display: flex; align-items: center; gap: 6px; }
+.btn { padding: 6px 12px; }

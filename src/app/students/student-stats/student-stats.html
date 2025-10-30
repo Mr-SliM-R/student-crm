@@ -1,0 +1,86 @@
+<section class="stats">
+  <header class="stats__header">
+    <div>
+      <h2 class="stats__title">Student Insights</h2>
+      <p class="stats__subtitle">
+        Demonstrates Module 4 topics: routed navigation, query parameters, and data transformation.
+      </p>
+    </div>
+    <button class="link" routerLink="/">Back to Home</button>
+  </header>
+
+  <section class="stats__overview">
+    <div class="card highlight">
+      <span class="label">Total Students</span>
+      <span class="value">{{ students.length }}</span>
+    </div>
+    <div class="card">
+      <span class="label">Active</span>
+      <span class="value">{{ activeCount }}</span>
+    </div>
+    <div class="card">
+      <span class="label">Inactive</span>
+      <span class="value">{{ inactiveCount }}</span>
+    </div>
+  </section>
+
+  <section class="stats__filters">
+    <span class="label">Filter by track:</span>
+    <button
+      class="chip"
+      [class.active]="!selectedTrack"
+      type="button"
+      (click)="selectTrack()">
+      All
+    </button>
+    <button
+      *ngFor="let track of tracks"
+      class="chip"
+      [class.active]="selectedTrack === track"
+      type="button"
+      (click)="selectTrack(track)">
+      {{ track }}
+    </button>
+  </section>
+
+  <section class="stats__table">
+    <h3 class="table__title">Track Breakdown</h3>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Track</th>
+          <th scope="col">Students</th>
+          <th scope="col">Active</th>
+          <th scope="col">Inactive</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let summary of summaries">
+          <td>{{ summary.track }}</td>
+          <td>{{ summary.total }}</td>
+          <td>{{ summary.active }}</td>
+          <td>{{ summary.inactive }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="stats__list">
+    <header class="list__header">
+      <h3 class="table__title">Students {{ selectedTrack ? '(' + selectedTrack + ')' : '' }}</h3>
+      <span class="muted">Query param: <code>?track={{ selectedTrack || 'all' }}</code></span>
+    </header>
+    <p *ngIf="!filteredStudents.length" class="muted">
+      No students available for this filter yet.
+    </p>
+    <ul *ngIf="filteredStudents.length" class="student-list">
+      <li *ngFor="let student of filteredStudents" class="student-row">
+        <span class="student-name">{{ student.name }}</span>
+        <span class="badge" [class.on]="student.active" [class.off]="!student.active">
+          {{ student.active ? 'Active' : 'Inactive' }}
+        </span>
+        <span class="track">{{ student.track }}</span>
+      </li>
+    </ul>
+  </section>
+</section>
