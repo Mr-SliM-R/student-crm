@@ -1,0 +1,451 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [ 5 0 R 7 0 R 9 0 R ] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 3048 >>
+stream
+BT
+/F1 12 Tf
+72 780 Td
+(title: Student CRM — Home & Insights Walkthrough) Tj
+ET
+BT
+/F1 12 Tf
+72 764 Td
+(paginate: true) Tj
+ET
+BT
+/F1 12 Tf
+72 748 Td
+(size: A4) Tj
+ET
+BT
+/F1 12 Tf
+72 716 Td
+(WELCOME!) Tj
+ET
+BT
+/F1 12 Tf
+72 684 Td
+(This guide breaks down how the **Home** screen and the **Insights window** \(stats) Tj
+ET
+BT
+/F1 12 Tf
+72 668 Td
+(dashboard\) work together in the Student CRM project. We'll use plain language so you can) Tj
+ET
+BT
+/F1 12 Tf
+72 652 Td
+(explain it easily to students who are new to Angular.) Tj
+ET
+BT
+/F1 12 Tf
+72 620 Td
+(1. WHAT ARE THESE SCREENS?) Tj
+ET
+BT
+/F1 12 Tf
+72 588 Td
+(• **Home** is where teachers add students and flip their active/inactive status.) Tj
+ET
+BT
+/F1 12 Tf
+72 572 Td
+(• **Insights** is a dashboard that reads the same list of students and turns it into) Tj
+ET
+BT
+/F1 12 Tf
+72 556 Td
+(totals, charts, and filters.) Tj
+ET
+BT
+/F1 12 Tf
+72 540 Td
+(• Both pages live inside one Angular app, so switching between them does **not** reload) Tj
+ET
+BT
+/F1 12 Tf
+72 524 Td
+(the browser.) Tj
+ET
+BT
+/F1 12 Tf
+72 492 Td
+(NOTE: Think of Home as the "data entry" room and Insights as the "summary" room that) Tj
+ET
+BT
+/F1 12 Tf
+72 476 Td
+(always peeks at the same notebook.) Tj
+ET
+BT
+/F1 12 Tf
+72 444 Td
+(2. SHARED TOOLBOX) Tj
+ET
+BT
+/F1 12 Tf
+72 412 Td
+(• Router links — `src/app/app.component.html` — Links labelled **Home** and **Insights**) Tj
+ET
+BT
+/F1 12 Tf
+72 396 Td
+(move between pages without leaving the single-page app.) Tj
+ET
+BT
+/F1 12 Tf
+72 380 Td
+(• Student service — `src/app/core/student.service.ts` — Stores every student in memory and) Tj
+ET
+BT
+/F1 12 Tf
+72 364 Td
+(offers `list\(\)`, `add\(\)`, and `toggleActive\(\)` helper methods.) Tj
+ET
+BT
+/F1 12 Tf
+72 348 Td
+(• Home component — `src/app/home/home.component.ts` + `.html` — Calls the service to show) Tj
+ET
+BT
+/F1 12 Tf
+72 332 Td
+(and change students.) Tj
+ET
+BT
+/F1 12 Tf
+72 316 Td
+(• Stats component — `src/app/students/student-stats/student-stats.component.ts` + `.html`) Tj
+ET
+BT
+/F1 12 Tf
+72 300 Td
+(— Reads from the service, groups the data, and shows the dashboard UI.) Tj
+ET
+BT
+/F1 12 Tf
+72 268 Td
+(3. NAVIGATION FLOW) Tj
+ET
+BT
+/F1 12 Tf
+72 236 Td
+(1. Inside the header, the link `<a routerLink="/students/stats">Insights</a>` tells) Tj
+ET
+BT
+/F1 12 Tf
+72 220 Td
+(Angular to swap the page content.) Tj
+ET
+BT
+/F1 12 Tf
+72 204 Td
+(2. Angular looks in `AppRoutingModule` and sees that `/students/stats` should load) Tj
+ET
+BT
+/F1 12 Tf
+72 188 Td
+(`StudentStatsComponent`.) Tj
+ET
+BT
+/F1 12 Tf
+72 172 Td
+(3. The router outlet switches to the stats component instantly. No refresh, no data loss.) Tj
+ET
+BT
+/F1 12 Tf
+72 156 Td
+(4. The **Back to Home** button is simply `routerLink="/"`, so students can jump back with) Tj
+ET
+BT
+/F1 12 Tf
+72 140 Td
+(one click.) Tj
+ET
+BT
+/F1 12 Tf
+72 108 Td
+(NOTE: Tip: Because routing happens in the browser, any typed form values on Home stay put) Tj
+ET
+BT
+/F1 12 Tf
+72 92 Td
+(until you leave the page on purpose.) Tj
+ET
+BT
+/F1 12 Tf
+72 60 Td
+(4. HOME IN SLOW MOTION) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R >> >> /MediaBox [0 0 612 792] /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 3270 >>
+stream
+BT
+/F1 12 Tf
+72 780 Td
+(1. `HomeComponent` runs `ngOnInit\(\)` → calls `studentService.list\(\)` → stores that array) Tj
+ET
+BT
+/F1 12 Tf
+72 764 Td
+(in `this.students`.) Tj
+ET
+BT
+/F1 12 Tf
+72 748 Td
+(2. When the **Add Student** form fires its `\(create\)` output, `onCreate\(\)` sends the) Tj
+ET
+BT
+/F1 12 Tf
+72 732 Td
+(payload to `studentService.add\(\)`.) Tj
+ET
+BT
+/F1 12 Tf
+72 716 Td
+(3. The service returns an updated array. Home replaces `this.students` so the new person) Tj
+ET
+BT
+/F1 12 Tf
+72 700 Td
+(shows up immediately.) Tj
+ET
+BT
+/F1 12 Tf
+72 684 Td
+(4. Toggling a student button calls `studentService.toggleActive\(id\)`, which flips the) Tj
+ET
+BT
+/F1 12 Tf
+72 668 Td
+(`active` flag and returns the fresh list again.) Tj
+ET
+BT
+/F1 12 Tf
+72 636 Td
+(Students only need to remember: *"Home always asks the service to do the work, then grabs) Tj
+ET
+BT
+/F1 12 Tf
+72 620 Td
+(the updated list."*) Tj
+ET
+BT
+/F1 12 Tf
+72 588 Td
+(5. INSIGHTS IN SLOW MOTION) Tj
+ET
+BT
+/F1 12 Tf
+72 556 Td
+(1. `StudentStatsComponent` also calls `studentService.list\(\)` when it loads.) Tj
+ET
+BT
+/F1 12 Tf
+72 540 Td
+(2. It runs a helper named `recomputeStats\(\)` that counts:) Tj
+ET
+BT
+/F1 12 Tf
+72 524 Td
+(   - total students) Tj
+ET
+BT
+/F1 12 Tf
+72 508 Td
+(   - active vs. inactive) Tj
+ET
+BT
+/F1 12 Tf
+72 492 Td
+(   - how many students are in each track) Tj
+ET
+BT
+/F1 12 Tf
+72 476 Td
+(3. It watches the router's query string for `?track=science` and keeps that value in) Tj
+ET
+BT
+/F1 12 Tf
+72 460 Td
+(`selectedTrack`.) Tj
+ET
+BT
+/F1 12 Tf
+72 444 Td
+(4. The template shows filter chips. Clicking a chip calls `selectTrack\(track\)`, which) Tj
+ET
+BT
+/F1 12 Tf
+72 428 Td
+(updates the query string. The getter `filteredStudents` then returns only the matching) Tj
+ET
+BT
+/F1 12 Tf
+72 412 Td
+(students.) Tj
+ET
+BT
+/F1 12 Tf
+72 380 Td
+(NOTE: Because filters live in the URL, bookmarking the page keeps the same selection when) Tj
+ET
+BT
+/F1 12 Tf
+72 364 Td
+(you come back.) Tj
+ET
+BT
+/F1 12 Tf
+72 332 Td
+(6. PUTTING IT TOGETHER) Tj
+ET
+BT
+/F1 12 Tf
+72 300 Td
+(    [Home] form submit → StudentService.add\(\) → shared store updates) Tj
+ET
+BT
+/F1 12 Tf
+72 284 Td
+(    [Home] toggle active → StudentService.toggleActive\(\) → shared store updates) Tj
+ET
+BT
+/F1 12 Tf
+72 268 Td
+(    Navigate to Insights → StudentService.list\(\) → stats recompute from the same store) Tj
+ET
+BT
+/F1 12 Tf
+72 236 Td
+(• There is **no special messaging** between Home and Insights. The service is the single) Tj
+ET
+BT
+/F1 12 Tf
+72 220 Td
+(source of truth.) Tj
+ET
+BT
+/F1 12 Tf
+72 204 Td
+(• Every time you open Insights, it re-reads the student list, so any changes from Home) Tj
+ET
+BT
+/F1 12 Tf
+72 188 Td
+(appear instantly.) Tj
+ET
+BT
+/F1 12 Tf
+72 156 Td
+(7. CLASSROOM TALKING POINTS) Tj
+ET
+BT
+/F1 12 Tf
+72 124 Td
+(• Emphasise the role of the service: *"Both components borrow the same clipboard."*) Tj
+ET
+BT
+/F1 12 Tf
+72 108 Td
+(• Show students how navigation is just `routerLink` attributes—no extra JavaScript is) Tj
+ET
+BT
+/F1 12 Tf
+72 92 Td
+(required.) Tj
+ET
+BT
+/F1 12 Tf
+72 76 Td
+(• Highlight the benefit of query parameters: they are easy to share or bookmark.) Tj
+ET
+BT
+/F1 12 Tf
+72 60 Td
+(• Encourage learners to trace data in the TypeScript files first, then peek at the HTML to) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R >> >> /MediaBox [0 0 612 792] /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 689 >>
+stream
+BT
+/F1 12 Tf
+72 780 Td
+(see how the data is displayed.) Tj
+ET
+BT
+/F1 12 Tf
+72 748 Td
+(8. QUICK RECAP) Tj
+ET
+BT
+/F1 12 Tf
+72 716 Td
+(1. Home and Insights are two components routed inside one Angular app.) Tj
+ET
+BT
+/F1 12 Tf
+72 700 Td
+(2. Both rely on `StudentService`, which owns the student list.) Tj
+ET
+BT
+/F1 12 Tf
+72 684 Td
+(3. Home changes the data; Insights reads and summarises it.) Tj
+ET
+BT
+/F1 12 Tf
+72 668 Td
+(4. The router keeps navigation smooth and remembers filter state through query parameters.) Tj
+ET
+BT
+/F1 12 Tf
+72 636 Td
+(You now have a beginner-friendly story that links the Home actions to the Insights) Tj
+ET
+BT
+/F1 12 Tf
+72 620 Td
+(dashboard. Happy teaching!) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 3 0 R >> >> /MediaBox [0 0 612 792] /Contents 8 0 R >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000129 00000 n 
+0000000199 00000 n 
+0000003298 00000 n 
+0000003424 00000 n 
+0000006745 00000 n 
+0000006871 00000 n 
+0000007610 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+7736
+%%EOF
